@@ -304,18 +304,16 @@ void setup() {
   Serial.println(F("READ_CSV,time_ms,loadcell,grams,raw,scale,tare,throttle"));
 
   Serial.println(F("Calibrating both scales together:"));
-//   calibrateBothScales(scale1, scale2, scaleFactor1, scaleFactor2, tare1, tare2, knownMass1, knownMass2);
-//   Serial.println(F("Calibrating both scales together:"));
-//   calibrateBothScales(scale1, scale2, scaleFactor1, scaleFactor2, tare1, tare2, knownMass1, knownMass2);
-//   Serial.println(F("Calibrating both scales together:"));
-//   calibrateBothScales(scale1, scale2, scaleFactor1, scaleFactor2, tare1, tare2, knownMass1, knownMass2);
+  calibrateBothScales(scale1, scale2, scaleFactor1, scaleFactor2, tare1, tare2, knownMass1, knownMass2);
 
   Serial.println(F("\nCalibration complete. Readings follow..."));
  
 }
 
-float throttleCap = 0.20;
-float throttleStep = 0.015f;
+float throttleCap = 0.20; // 0-1
+float throttleStep = 0.015f; // %/10ms
+float topTime = 100.0f; // sec
+
 void loop() {
     double loopStart = micros();
     processSerialCommands();
@@ -331,7 +329,7 @@ void loop() {
     // Characterization: ramp throttle slowly from 0 -> 0.4 once when restarted
     if (characterize && !stopped) {
     uint32_t nowUs = micros();
-    if (charRampDown && !heldTop && nowUs - lastCharUpdateUs >= 100000000){ // 0.5 seconds at max throttle for battery comparison
+    if (charRampDown && !heldTop && nowUs - lastCharUpdateUs >= 1000000 * topTime){ // 0.5 seconds at max throttle for battery comparison
         heldTop = true;
         lastCharUpdateUs = nowUs;
 
