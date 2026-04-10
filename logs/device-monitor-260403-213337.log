@@ -1,0 +1,6 @@
+21:33:39.997 > Starting HX711 dual-example (Teensy + Adafruit HX711)
+21:33:39.999 > READ_CSV,time_ms,loadcell,grams,raw,scale,tare,throttle
+21:33:39.999 > Calibrating both scales together:
+21:33:39.999 > 
+21:33:39.999 > Calibration complete. Readings follow...
+21:33:42.196 > [char] Starting throttle ramp to 0.40 then back to 0

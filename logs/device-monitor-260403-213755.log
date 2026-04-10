@@ -1,0 +1,5 @@
+21:37:57.173 > Starting HX711 dual-example (Teensy + Adafruit HX711)
+21:37:57.173 > READ_CSV,time_ms,loadcell,grams,raw,scale,tare,throttle
+21:37:57.173 > Calibrating both scales together:
+21:37:57.173 > 
+21:37:57.173 > Calibration complete. Readings follow...
