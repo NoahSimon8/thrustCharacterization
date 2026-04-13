@@ -6,6 +6,12 @@
 #include "PWMDriver.h"
 #include "ESC.h"
 
+
+// Kaelyn change these
+float throttleCap = 0.40; // 0-1
+float throttleStep = 0.001f; // %/10ms //0.015 for battery characterization, 0.001 for thrust characterization
+float topTime = 0.5f; //sec    // 50+ sec for battery, 0.5 sec for thrust characterization
+
 constexpr uint8_t PIN_ESC1 = 9;
 constexpr uint8_t PIN_ESC2 = 10;
 constexpr uint8_t PIN_BATTERY = 23;
@@ -327,9 +333,7 @@ void setup() {
  
 }
 
-float throttleCap = 0.20; // 0-1
-float throttleStep = 0.015f; // %/10ms
-float topTime = 100.0f; // sec
+
 
 void loop() {
     double loopStart = micros();
