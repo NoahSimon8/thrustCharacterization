@@ -128,6 +128,32 @@ def plot_grams_vs_throttle(df: pd.DataFrame) -> go.Figure:
     return fig
 
 
+def plot_grams_vs_voltage(df: pd.DataFrame) -> go.Figure:
+    if "battery_voltage" not in df.columns:
+        raise ValueError("battery_voltage column missing in CSV; rerun firmware to log battery voltage.")
+    fig = go.Figure()
+    colors = {1: "royalblue", 2: "darkorange", 3: "magenta"}
+    for cell in sorted(df["loadcell"].unique()):
+        sub = df[df["loadcell"] == cell]
+        fig.add_trace(
+            go.Scatter(
+                x=sub["battery_voltage"],
+                y=sub["lbf"],
+                mode="markers",
+                name=f"lbf vs voltage L{cell}",
+                marker=dict(color=colors.get(cell, None), size=6 if cell == 3 else 5, opacity=0.7),
+            )
+        )
+    fig.update_layout(
+        title="lbf vs Battery Voltage",
+        xaxis_title="Battery Voltage (V)",
+        yaxis_title="lbf",
+        legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
+        margin=dict(l=60, r=60, t=60, b=60),
+    )
+    return fig
+
+
 def main(argv: list[str]) -> int:
     parser = argparse.ArgumentParser(description="Plot load-cell readings.")
     parser.add_argument("--input", "-i", type=Path, default=Path("logs/readings.csv"))
@@ -136,7 +162,7 @@ def main(argv: list[str]) -> int:
 
     df = load_data(args.input)
 
-    figs = [plot_grams(df), plot_raw(df), plot_grams_vs_throttle(df)]
+    figs = [plot_grams(df), plot_raw(df), plot_grams_vs_throttle(df), plot_grams_vs_voltage(df)]
 
     # Combine figures into one HTML
     html_parts = [f.to_html(full_html=False, include_plotlyjs=False) for f in figs]
