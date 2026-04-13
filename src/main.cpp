@@ -8,9 +8,15 @@
 
 constexpr uint8_t PIN_ESC1 = 9;
 constexpr uint8_t PIN_ESC2 = 10;
+constexpr uint8_t PIN_BATTERY = 23;
 
 constexpr uint8_t CH_ESC1 = 2;
 constexpr uint8_t CH_ESC2 = 3;
+
+constexpr uint16_t ADC_RESOLUTION = 12;
+constexpr uint16_t ADC_MAX = (1u << ADC_RESOLUTION) - 1;
+constexpr float ADC_REF_VOLTAGE = 3.3f;
+constexpr float BATTERY_DIVIDER_RATIO = 25.2f / 2.8f;
 
 PWMDriver pwm;
 ESC esc1(pwm, CH_ESC1, 1000, 2000);
@@ -37,7 +43,7 @@ int calibrationMode = 0;                // 0=normal, 1=high pwm, 2=low pwm
 
 
 // CSV logging helper for averaged readings
-void logReadingCsv(uint32_t tMs, uint8_t cell, float grams, int32_t raw, float scale, int32_t tare) {
+void logReadingCsv(uint32_t tMs, uint8_t cell, float grams, int32_t raw, float scale, int32_t tare, float batteryVoltage) {
   Serial.print(F("READ_CSV,"));
   Serial.print(tMs);
   Serial.print(F(","));
@@ -51,9 +57,17 @@ void logReadingCsv(uint32_t tMs, uint8_t cell, float grams, int32_t raw, float s
   Serial.print(F(","));
   Serial.print(tare);
   Serial.print(F(","));
-  Serial.println(throttle, 3);
+  Serial.print(throttle, 3);
+  Serial.print(F(","));
+  Serial.println(batteryVoltage, 3);
 }
 
+
+float readBatteryVoltage(uint8_t pin) {
+  float raw = analogRead(pin);
+  float measuredVoltage = ADC_REF_VOLTAGE * (raw / float(ADC_MAX));
+  return measuredVoltage * BATTERY_DIVIDER_RATIO;
+}
 
 // Calibration values (computed at runtime in this example)
 float scaleFactor1 = 1.0f; // raw counts per gram (you'll compute)
@@ -280,6 +294,9 @@ void setup() {
 
   Serial.println(F("Starting HX711 dual-example (Teensy + Adafruit HX711)"));
 
+  analogReadResolution(ADC_RESOLUTION);
+  pinMode(PIN_BATTERY, INPUT);
+
   // Initialize both HX711s
   scale1.begin();
   scale2.begin();
@@ -301,7 +318,7 @@ void setup() {
   const float knownMass2 = 7000.0f;
 
   // CSV headers (printed once so the host can split streams)
-  Serial.println(F("READ_CSV,time_ms,loadcell,grams,raw,scale,tare,throttle"));
+  Serial.println(F("READ_CSV,time_ms,loadcell,grams,raw,scale,tare,throttle,battery_voltage"));
 
   Serial.println(F("Calibrating both scales together:"));
   calibrateBothScales(scale1, scale2, scaleFactor1, scaleFactor2, tare1, tare2, knownMass1, knownMass2);
@@ -390,11 +407,12 @@ void loop() {
 
     float grams1 = (float)rawTared / scaleFactor;
     float grams2 = (float)rawTared2 / scaleFactor;
+    float batteryVoltage = readBatteryVoltage(PIN_BATTERY, 4);
 
     uint32_t nowMs = millis();
-    logReadingCsv(nowMs, 1, grams1, raw1, scaleFactor, tare1);
-    logReadingCsv(nowMs, 2, grams2, raw2, scaleFactor, tare2);
-    logReadingCsv(nowMs, 3, (grams1 + grams2) / 2, 0.0f, scaleFactor, 0);
+    logReadingCsv(nowMs, 1, grams1, raw1, scaleFactor, tare1, batteryVoltage);
+    logReadingCsv(nowMs, 2, grams2, raw2, scaleFactor, tare2, batteryVoltage);
+    logReadingCsv(nowMs, 3, (grams1 + grams2) / 2, 0.0f, scaleFactor, 0, batteryVoltage);
     // Simple approximate grams computed from the calibration factors using last tare = read - (knownMass * scaleFactor)
     // (This is a demonstration — keep a persistent tare for accuracy.)
     double loopdt = (micros() - loopStart) * 1e-6; // seconds

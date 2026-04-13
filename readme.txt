@@ -1,4 +1,4 @@
-hello
+Battery
 
 After test, run this to make a new readings.csv
 .\.venv\Scripts\python.exe .\scripts\log_to_csv.py logs/[NAME OF LOG FILE]

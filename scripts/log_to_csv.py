@@ -42,10 +42,11 @@ def parse_logs(paths: Iterable[Path]):
                 payload = payload.strip()
                 if payload.startswith("READ_CSV,"):
                     parts = payload.split(",")
-                    if len(parts) < 7:
+                    if len(parts) < 8:
                         continue
                     try:
                         throttle_val = float(parts[7]) if len(parts) > 7 else None
+                        battery_val = float(parts[8]) if len(parts) > 8 else None
                         read_rows.append(
                             {
                                 "clock_time": clock_time,
@@ -56,6 +57,7 @@ def parse_logs(paths: Iterable[Path]):
                                 "scale": float(parts[5]),
                                 "tare": int(parts[6]),
                                 "throttle": throttle_val,
+                                "battery_voltage": battery_val,
                                 "source_file": path.name,
                             }
                         )
