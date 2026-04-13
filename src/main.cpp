@@ -407,7 +407,7 @@ void loop() {
 
     float grams1 = (float)rawTared / scaleFactor;
     float grams2 = (float)rawTared2 / scaleFactor;
-    float batteryVoltage = readBatteryVoltage(PIN_BATTERY, 4);
+    float batteryVoltage = readBatteryVoltage(PIN_BATTERY);
 
     uint32_t nowMs = millis();
     logReadingCsv(nowMs, 1, grams1, raw1, scaleFactor, tare1, batteryVoltage);
