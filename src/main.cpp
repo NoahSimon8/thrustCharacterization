@@ -208,7 +208,7 @@ int32_t readAvg(Adafruit_HX711 &hx, uint8_t samples = 1) {
   for (uint8_t i = 0; i < samples; ++i) {
     int32_t reading = hx.readChannelRaw();
     sum += reading;   // blocking read for stability
-    delay(0.5);
+    delay(1);
   }
   
   return (int32_t)(sum / samples);
@@ -224,7 +224,7 @@ std::pair<int32_t,int32_t> readAvgBoth(Adafruit_HX711 &hx1, Adafruit_HX711 &hx2,
 
     sum1 += r1;
     sum2 += r2;
-    delay(0.2);
+    delay(1);
   }
   return std::make_pair((int32_t)(sum1 / samples), (int32_t)(sum2 / samples));
 }
@@ -391,16 +391,17 @@ void loop() {
     }
 
     esc1.setThrottle01(throttle);
-    esc1.update();  
+    esc1.update();
+      
     esc2.setThrottle01(throttle);
     esc2.update();
 
     // Read averages
-    // std::pair<int32_t,int32_t> raw = readAvgBoth(scale1,scale2, 1);
-    // int32_t raw1 = raw.first;
-    // int32_t raw2 = raw.second;
-    int32_t raw1 = 0;
-    int32_t raw2 = 0;
+    std::pair<int32_t,int32_t> raw = readAvgBoth(scale1,scale2, 1);
+    int32_t raw1 = raw.first;
+    int32_t raw2 = raw.second;
+    // int32_t raw1 = 0;
+    // int32_t raw2 = 0;
 
 
     int32_t rawTared = 0;
@@ -416,7 +417,7 @@ void loop() {
     uint32_t nowMs = millis();
     logReadingCsv(nowMs, 1, grams1, raw1, scaleFactor, tare1, batteryVoltage);
     logReadingCsv(nowMs, 2, grams2, raw2, scaleFactor, tare2, batteryVoltage);
-    logReadingCsv(nowMs, 3, (grams1 + grams2) / 2, 0.0f, scaleFactor, 0, batteryVoltage);
+    logReadingCsv(nowMs, 3, (grams1 + grams2) / 2.0, 0.0f, scaleFactor, 0, batteryVoltage);
     // Simple approximate grams computed from the calibration factors using last tare = read - (knownMass * scaleFactor)
     // (This is a demonstration — keep a persistent tare for accuracy.)
     double loopdt = (micros() - loopStart) * 1e-6; // seconds
