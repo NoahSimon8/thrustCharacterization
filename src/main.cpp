@@ -49,7 +49,7 @@ int calibrationMode = 0;                // 0=normal, 1=high pwm, 2=low pwm
 
 
 // CSV logging helper for averaged readings
-void logReadingCsv(uint32_t tMs, uint8_t cell, float grams, int32_t raw, float scale, int32_t tare) {
+void logReadingCsv(uint32_t tMs, uint8_t cell, float grams, int32_t raw, float scale, int32_t tare, int32_t battery_voltage) {
   Serial.print(F("READ_CSV,"));
   Serial.print(tMs);
   Serial.print(F(","));
@@ -64,6 +64,8 @@ void logReadingCsv(uint32_t tMs, uint8_t cell, float grams, int32_t raw, float s
   Serial.print(tare);
   Serial.print(F(","));
   Serial.println(throttle, 3);
+  Serial.print(F(","));
+  Serial.println(battery_voltage, 3);
 }
 
 
@@ -323,6 +325,11 @@ void setup() {
 }
 
 
+float readBatteryVoltage(uint8_t pin) {
+  float raw = analogRead(pin);
+  float measuredVoltage = ADC_REF_VOLTAGE * (raw / float(ADC_MAX));
+  return measuredVoltage * BATTERY_DIVIDER_RATIO;
+}
 
 void loop() {
     double loopStart = micros();

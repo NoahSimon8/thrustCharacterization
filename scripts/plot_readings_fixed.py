@@ -169,6 +169,36 @@ def plot_grams_vs_throttle(df: pd.DataFrame) -> go.Figure:
     return fig
 
 
+def plot_grams_vs_voltage(df: pd.DataFrame) -> go.Figure:
+    if "battery_voltage" not in df.columns:
+        raise ValueError("battery_voltage column missing in CSV; rerun firmware to log battery voltage.")
+
+    fig = go.Figure()
+    colors = {1: "royalblue", 2: "darkorange", 3: "magenta"}
+
+    for cell in sorted(df["loadcell"].dropna().unique()):
+        sub = df[df["loadcell"] == cell]
+        x, y = _series_as_lists(sub, "battery_voltage", "lbf")
+        fig.add_trace(
+            go.Scatter(
+                x=x,
+                y=y,
+                mode="markers",
+                name=f"lbf vs voltage L{int(cell)}",
+                marker=dict(color=colors.get(int(cell), None), size=6 if int(cell) == 3 else 5, opacity=0.7),
+            )
+        )
+
+    fig.update_layout(
+        title="lbf vs Battery Voltage",
+        xaxis_title="Battery Voltage (V)",
+        yaxis_title="lbf",
+        legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
+        margin=dict(l=60, r=60, t=60, b=60),
+    )
+    return fig
+
+
 def write_combined_html(figs: list[go.Figure], out_path: Path) -> None:
     html_parts: list[str] = []
     for i, fig in enumerate(figs):
@@ -196,7 +226,7 @@ def main(argv: list[str]) -> int:
     args = parser.parse_args(argv)
 
     df = load_data(args.input)
-    figs = [plot_grams(df), plot_raw(df), plot_grams_vs_throttle(df)]
+    figs = [plot_grams(df), plot_raw(df), plot_grams_vs_throttle(df), plot_grams_vs_voltage(df)]
     write_combined_html(figs, args.out)
 
     print(f"Wrote plots to {args.out}")
