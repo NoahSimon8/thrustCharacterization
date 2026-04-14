@@ -5,6 +5,12 @@ reference the diagram i sent you in dms before, you need to create the voltage d
 - You need 3.3 volt as the maximum to go into the teensy *pin 23*
 - have your power and ground wires start at the V-IN of the buck converters
 
+
+Big motor:
+one yellow in pin 9
+one yellow in pin 10
+black wire to ground rail (blue)
+
 Connect to teensy
 - Mirco usb
 
