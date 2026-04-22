@@ -7,7 +7,7 @@
 #include "ESC.h"
 
 // Kaelyn change these
-float throttleCap = 0.0;     // 0-1
+float throttleCap = 1;       // 0-1
 float throttleStep = 0.001f; // %/10ms //0.015 for battery characterization, 0.001 for thrust characterization
 float topTime = 0.5f;        // sec    // 50+ sec for battery, 0.5 sec for thrust characterization
 
@@ -47,7 +47,7 @@ uint32_t lastCharUpdateUs = 0;
 int calibrationMode = 0; // 0=normal, 1=high pwm, 2=low pwm
 
 // CSV logging helper for averaged readings
-void logReadingCsv(uint32_t tMs, uint8_t cell, float grams, int32_t raw, float scale, int32_t tare, int32_t battery_voltage)
+void logReadingCsv(uint32_t tMs, uint8_t cell, float grams, int32_t raw, float scale, int32_t tare, float battery_voltage)
 {
     Serial.print(F("READ_CSV,"));
     Serial.print(tMs);
@@ -284,6 +284,8 @@ void setup()
     {
         delay(10);
     } // wait for serial connection (Teensy
+
+    analogReadResolution(12);
 
     // PWM driver for servos/ESCx
     pwm.begin(50.0f);
