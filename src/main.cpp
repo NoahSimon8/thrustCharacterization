@@ -7,9 +7,13 @@
 #include "ESC.h"
 
 // Kaelyn change these
-float throttleCap = 1;       // 0-1
-float throttleStep = 0.001f; // %/10ms //0.015 for battery characterization, 0.001 for thrust characterization
+float throttleCap = 1.0;     // 0-1
+float throttleStep = 0.008f; // %/10ms //0.015 for battery characterization, 0.001 for thrust characterization
 float topTime = 0.5f;        // sec    // 50+ sec for battery, 0.5 sec for thrust characterization
+
+// Delay for Thrust
+int x = 10; // Delay for 50ms (x * 10ms)
+int loopCnt = 0;
 
 constexpr uint8_t PIN_ESC1 = 9;
 constexpr uint8_t PIN_ESC2 = 10;
@@ -355,6 +359,9 @@ void loop()
         return;
     }
 
+    // For Delay
+    loopCnt++;
+
     // Characterization: ramp throttle slowly from 0 -> 0.4 once when restarted
     if (characterize && !stopped)
     {
@@ -369,7 +376,8 @@ void loop()
             if (!charRampDown)
             {
                 lastCharUpdateUs = nowUs;
-                throttle += throttleStep;
+                if ((loopCnt % x) == 0)
+                    throttle += throttleStep;
                 if (throttle >= throttleCap)
                 {
                     throttle = throttleCap;
@@ -380,7 +388,8 @@ void loop()
             else if (heldTop)
             {
                 lastCharUpdateUs = nowUs;
-                throttle -= throttleStep;
+                if ((loopCnt % x) == 0)
+                    throttle -= throttleStep;
                 if (throttle <= 0.0f)
                 {
                     throttle = 0.0f;
