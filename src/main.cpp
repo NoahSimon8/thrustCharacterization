@@ -74,7 +74,7 @@ void logReadingCsv(uint32_t tMs, uint8_t cell, float grams, int32_t raw, float s
 // Calibration values (computed at runtime in this example)
 float scaleFactor1 = 1.0f; // raw counts per gram (you'll compute)
 float scaleFactor2 = 1.0f;
-float scaleFactor = 52.2337;           // 3/21/26, with 2kg, 5kg, 7kg, 12 total calibrations
+float scaleFactor = 51.9574583333; // 5/25/26, with 2kg, 5 total calibrations of 1000 points each
 int32_t tare1 = 152367, tare2 = 37769; // 3/21/26 with 9 calibrations
 
 // Parse a token that might be "kp=...", "ki=...", "kd=...", or single-char commands.
@@ -241,8 +241,8 @@ void calibrateBothScales(
 {
 
     // 1) Capture tare on both channels simultaneously
-    //   Serial.println(F("Clear both scales (no weight). Waiting 4s..."));
-    //   delay(4000);
+    // Serial.println(F("Clear both scales (no weight). Waiting 4s..."));
+    // delay(4000);
 
     auto tare = readAvgBoth(hx1, hx2, 300);
     tareRaw1 = tare.first;
@@ -252,19 +252,22 @@ void calibrateBothScales(
     Serial.print(F("Tare2 raw = "));
     Serial.println(tareRaw2);
 
-    //   // 2) Ask for known masses on each scale (they can be identical)
-    //   Serial.print(F("Place known masses (g) - scale1: "));
-    //   Serial.print(knownMass1);
-    //   Serial.print(F("  scale2: "));
-    //   Serial.println(knownMass2);
-    //   delay(12000); // give user time
+    // // 2) Ask for known masses on each scale (they can be identical)
+    // Serial.print(F("Place known masses (g) - scale1: "));
+    // Serial.print(knownMass1);
+    // Serial.print(F("  scale2: "));
+    // Serial.println(knownMass2);
+    // delay(5000); // give user time
 
-    //   auto withMass = readAvgBoth(hx1, hx2, 1000);
-    //   Serial.print(F("Raw1 with mass = ")); Serial.println(withMass.first);
-    //   Serial.print(F("Raw2 with mass = ")); Serial.println(withMass.second);
+    // auto withMass = readAvgBoth(hx1, hx2, 1000);
+    // Serial.print(F("Raw1 with mass = ")); Serial.println(withMass.first);
+    // Serial.print(F("Raw2 with mass = ")); Serial.println(withMass.second);
 
-    //   int32_t delta1 = withMass.first - tareRaw1;
-    //   int32_t delta2 = withMass.second - tareRaw2;
+    // int32_t delta1 = withMass.first - tareRaw1;
+    // int32_t delta2 = withMass.second - tareRaw2;
+
+    // Serial.print(F("delta 1 = ")); Serial.println(delta1);
+    // Serial.print(F("delta 2 = ")); Serial.println(delta2);
 
     //   if (delta1 <= 0) {
     //     Serial.println(F("Scale1 calibration error: non-positive delta. Check wiring/sensor."));
@@ -330,14 +333,14 @@ void setup()
 
     // Calibration process for both scales:
     // Replace these with the known mass you will use for calibration (grams)
-    const float knownMass1 = 7000.0f; // e.g. 500 g calibration weight
-    const float knownMass2 = 7000.0f;
+    const float knownMass1 = 2000.0f; // e.g. 500 g calibration weight
+    const float knownMass2 = 2000.0f;
 
     // CSV headers (printed once so the host can split streams)
     Serial.println(F("READ_CSV,time_ms,loadcell,grams,raw,scale,tare,throttle"));
 
     Serial.println(F("Calibrating both scales together:"));
-    // calibrateBothScales(scale1, scale2, scaleFactor1, scaleFactor2, tare1, tare2, knownMass1, knownMass2);
+    calibrateBothScales(scale1, scale2, scaleFactor1, scaleFactor2, tare1, tare2, knownMass1, knownMass2);
 
     Serial.println(F("\nCalibration complete. Readings follow..."));
 }
