@@ -7,9 +7,9 @@
 #include "ESC.h"
 
 // Kaelyn change these
-float throttleCap = 0.0;     // 0-1
-float throttleStep = 0.001f; // %/10ms //0.015 for battery characterization, 0.001 for thrust characterization
-float topTime = 0.5f;        // sec    // 50+ sec for battery, 0.5 sec for thrust characterization
+float throttleCap = 0.5f;     // 0-1
+float throttleStep = 0.0005; // %/10ms //0.015 for battery characterization, 0.001 for thrust characterization
+float topTime = 30.0f;        // sec    // 50+ sec for battery, 0.5 sec for thrust characterization
 
 constexpr uint8_t PIN_ESC1 = 9;
 constexpr uint8_t PIN_ESC2 = 10;
@@ -64,7 +64,7 @@ void logReadingCsv(uint32_t tMs, uint8_t cell, float grams, int32_t raw, float s
     Serial.print(F(","));
     Serial.print(throttle, 3);
     Serial.print(F(","));
-    Serial.println(battery_voltage, 6);
+    Serial.println(battery_voltage);
 }
 
 // Calibration values (computed at runtime in this example)
@@ -100,13 +100,16 @@ void parseToken(const String &token)
         Serial.print("tff= ");
         Serial.println(throttle);
     }
-    else if (token.equals("cal"))
+    else if (token.equals("c"))
     {
-        calibrationMode += 1;
-        if (calibrationMode > 2)
-        {
-            calibrationMode = 0;
-        }
+        // calibrationMode += 1;
+        // if (calibrationMode > 2)
+        // {
+        //     calibrationMode = 0;
+        // }
+        // Serial.print("cal=");
+        // Serial.println(calibrationMode);
+
     }
 }
 
@@ -123,8 +126,9 @@ void processSerialCommands()
             // calibrationMode += 1;
             // if (calibrationMode > 2)
             // {
-            //     calibrationMode = 0;
+            //     calibrationMode = 1;
             // }
+            // Serial.print("cal=");
             // Serial.println(calibrationMode);
             stopped = !stopped;
             if (stopped)
@@ -327,7 +331,7 @@ void setup()
     Serial.println(F("READ_CSV,time_ms,loadcell,grams,raw,scale,tare,throttle"));
 
     Serial.println(F("Calibrating both scales together:"));
-    calibrateBothScales(scale1, scale2, scaleFactor1, scaleFactor2, tare1, tare2, knownMass1, knownMass2);
+    // calibrateBothScales(scale1, scale2, scaleFactor1, scaleFactor2, tare1, tare2, knownMass1, knownMass2);
 
     Serial.println(F("\nCalibration complete. Readings follow..."));
 }
@@ -349,7 +353,7 @@ void loop()
     {
         calibration();
         throttle = 0;
-        delay(1);
+        delayMicroseconds(10);
         return;
     }
 
@@ -398,8 +402,6 @@ void loop()
         throttle = 0;
         characterize = false;
         charRampDown = false;
-        delay(50);
-
         return;
     }
 
