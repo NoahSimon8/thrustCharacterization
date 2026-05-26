@@ -76,7 +76,7 @@ def write_csv(path: Path, fieldnames: List[str], rows: List[dict]):
 
 def main(argv: List[str]) -> int:
     parser = argparse.ArgumentParser(description="Convert monitor logs to readings.csv")
-    parser.add_argument("--battery", "-b", type=float, default=None, help="Battery voltage to include in output rows")
+    parser.add_argument("--battery", "-b", type=float, default=None, help="Battery voltage to use as fallback/override")
     parser.add_argument("logs", nargs="*", help="Optional list of .log files; defaults to logs/*.log")
     args = parser.parse_args(argv)
 
@@ -86,12 +86,10 @@ def main(argv: List[str]) -> int:
         return 1
 
     read_rows = parse_logs(files)
-    if args.battery is not None:
-        for row in read_rows:
+
+    for row in read_rows:
+        if row["battery_voltage"] is None and args.battery is not None:
             row["battery_voltage"] = args.battery
-    else:
-        for row in read_rows:
-            row["battery_voltage"] = None
 
     write_csv(
         out_dir / "readings.csv",

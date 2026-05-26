@@ -11,6 +11,10 @@ float throttleCap = 0.5f;     // 0-1
 float throttleStep = 0.0005; // %/10ms //0.015 for battery characterization, 0.001 for thrust characterization
 float topTime = 30.0f;        // sec    // 50+ sec for battery, 0.5 sec for thrust characterization
 
+// Delay for Thrust
+int x = 10; // Delay for 50ms (x * 10ms)
+int loopCnt = 0;
+
 constexpr uint8_t PIN_ESC1 = 9;
 constexpr uint8_t PIN_ESC2 = 10;
 constexpr uint8_t PIN_BATTERY = 23;
@@ -47,7 +51,7 @@ uint32_t lastCharUpdateUs = 0;
 int calibrationMode = 0; // 0=normal, 1=high pwm, 2=low pwm
 
 // CSV logging helper for averaged readings
-void logReadingCsv(uint32_t tMs, uint8_t cell, float grams, int32_t raw, float scale, int32_t tare, int32_t battery_voltage)
+void logReadingCsv(uint32_t tMs, uint8_t cell, float grams, int32_t raw, float scale, int32_t tare, float battery_voltage)
 {
     Serial.print(F("READ_CSV,"));
     Serial.print(tMs);
@@ -289,6 +293,8 @@ void setup()
         delay(10);
     } // wait for serial connection (Teensy
 
+    analogReadResolution(12);
+
     // PWM driver for servos/ESCx
     pwm.begin(50.0f);
 
@@ -357,6 +363,9 @@ void loop()
         return;
     }
 
+    // For Delay
+    loopCnt++;
+
     // Characterization: ramp throttle slowly from 0 -> 0.4 once when restarted
     if (characterize && !stopped)
     {
@@ -371,7 +380,8 @@ void loop()
             if (!charRampDown)
             {
                 lastCharUpdateUs = nowUs;
-                throttle += throttleStep;
+                if ((loopCnt % x) == 0)
+                    throttle += throttleStep;
                 if (throttle >= throttleCap)
                 {
                     throttle = throttleCap;
@@ -382,7 +392,8 @@ void loop()
             else if (heldTop)
             {
                 lastCharUpdateUs = nowUs;
-                throttle -= throttleStep;
+                if ((loopCnt % x) == 0)
+                    throttle -= throttleStep;
                 if (throttle <= 0.0f)
                 {
                     throttle = 0.0f;
