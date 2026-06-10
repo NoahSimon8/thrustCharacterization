@@ -7,7 +7,7 @@
 #include "ESC.h"
 
 // Kaelyn change these
-float throttleCap = 1.0f;     // 0-1
+float throttleCap = 0.5f;     // 0-1
 float throttleStep = 0.015; // %/10ms //0.015 for battery characterization, 0.001 for thrust characterization
 float topTime = 10.0f;        // sec    // 50+ sec for battery, 0.5 sec for thrust characterization
 
@@ -41,7 +41,7 @@ const uint8_t SCK2 = 37;  // HX711 #2 clock
 Adafruit_HX711 scale1(DOUT1, SCK1);
 Adafruit_HX711 scale2(DOUT2, SCK2);
 
-float throttle = 0;
+float throttle = 0.2;
 double loopTime = 0.0;
 bool stopped = true;
 bool characterize = false;
