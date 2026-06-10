@@ -7,12 +7,12 @@
 #include "ESC.h"
 
 // Kaelyn change these
-float throttleCap = 0.5f;     // 0-1
-float throttleStep = 0.0005; // %/10ms //0.015 for battery characterization, 0.001 for thrust characterization
-float topTime = 30.0f;        // sec    // 50+ sec for battery, 0.5 sec for thrust characterization
+float throttleCap = 1.0f;     // 0-1
+float throttleStep = 0.015; // %/10ms //0.015 for battery characterization, 0.001 for thrust characterization
+float topTime = 10.0f;        // sec    // 50+ sec for battery, 0.5 sec for thrust characterization
 
 // Delay for Thrust
-int x = 10; // Delay for 50ms (x * 10ms)
+int x = 5; // Delay for 50ms (x * 10ms)
 int loopCnt = 0;
 
 constexpr uint8_t PIN_ESC1 = 9;
