@@ -74,7 +74,7 @@ void logReadingCsv(uint32_t tMs, uint8_t cell, float grams, int32_t raw, float s
 // Calibration values (computed at runtime in this example)
 float scaleFactor1 = 1.0f; // raw counts per gram (you'll compute)
 float scaleFactor2 = 1.0f;
-float scaleFactor = 51.9574583333; // 5/25/26, with 2kg, 5 total calibrations of 1000 points each
+float scaleFactor = -50.261625; // 5/25/26, with 2kg, 5 total calibrations of 1000 points each
 int32_t tare1 = 152367, tare2 = 37769; // 3/21/26 with 9 calibrations
 
 // Parse a token that might be "kp=...", "ki=...", "kd=...", or single-char commands.
